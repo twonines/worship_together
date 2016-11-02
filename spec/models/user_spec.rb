@@ -4,7 +4,7 @@ require 'rails_helper'
  # pending "add some examples to (or delete) #{__FILE__}"
 
 describe User do
-    let(:user) { User.create(name: 'John Doe', email: 'jdoe@example.com', password: 'password') }
+    let(:user) { FactoryGirl.create(:user) }
     subject { user }
 
     it { should respond_to(:name) }

@@ -10,6 +10,7 @@ gem 'sass-rails', '~> 5.0'
 
 group :test do
 	gem 'capybara'
+	gem 'factory_girl_rails'
 end
 
 # Use Uglifier as compressor for JavaScript assets
