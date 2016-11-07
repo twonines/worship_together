@@ -43,6 +43,13 @@ class UsersController < ApplicationController
     end  
   end
   
+  def destroy
+  	@user = User.find(params[:id])
+  	@user.destroy
+  	flash[:success] ="#{@user.name} removed from the site"
+    redirect_to users_path
+  end
+  
   private 
   
   def user_params
