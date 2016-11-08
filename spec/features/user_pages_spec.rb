@@ -44,6 +44,7 @@ describe "User Pages" do
 		end
 	end
 
+
 	describe "creating user" do
 		let (:submit) { 'Create new user' }
 		
@@ -85,7 +86,6 @@ describe "User Pages" do
 				it { should have_alert(:success, text: 'Welcome') }
 			end
 		end
-	#end
 
 		describe "redirects to profile page", type: :request do
 			before do
@@ -101,12 +101,16 @@ describe "User Pages" do
 		end
 	end
 	
+	
   describe "editing users" do
 		let (:user) { FactoryGirl.create(:user) }
 		let!(:original_name) { user.name }
 		let (:submit) { 'Update user profile' }
 
-		before { visit edit_user_path(user) }
+		before do
+			login user
+			visit edit_user_path(user) 
+		end
 
 		#it { should have_field('Name', with: user.name) }
 		it { should have_field('Username', with: user.name) }
@@ -134,79 +138,86 @@ describe "User Pages" do
 	    it "produces an error message" do
 				click_button submit
 				should have_alert(:danger)
-	    end
-		end
-
-		describe "non-existant", type: :request do
-			before { get edit_user_path(-1) }
-
-			specify { expect(response).to redirect_to(users_path) }
-
-			describe "follow redirect" do
-				before { visit edit_user_path(-1) }
-				
-				it { should have_alert(:danger, text: "Unable") }
 			end
-		end
 		
-		describe "with valid information" do
-		  before do
-				fill_in 'Username', with: 'New Name'
-				fill_in 'Email', with: 'new.name@example.com'
-				fill_in 'Password', with: user.password
-				fill_in 'Confirmation', with: user.password
-		  end
-		  
-		  describe "changes the data" do
-				before { click_button submit }
+			describe "non-existant", type: :request do
+				before { get edit_user_path(-1) }
 	
-				specify { expect(user.reload.name).to eq('New Name') }
-				specify { expect(user.reload.email).to eq('new.name@example.com') }
-		  end
+				specify { expect(response).to redirect_to(users_path) }
 	
-		  describe "redirects back to profile page", type: :request do
-				before do
-			    patch user_path(user), user: { name: 'New Name',
-							   email: 'new.name@example.com',
-							   password: user.password,
-							   password_confirmation: user.password }
+				describe "follow redirect" do
+					before { visit edit_user_path(-1) }
+					
+					it { should have_alert(:danger, text: "Unable") }
 				end
+			end
+		
+			describe "with valid information" do
+			  before do
+					fill_in 'Username', with: 'New Name'
+					fill_in 'Email', with: 'new.name@example.com'
+					fill_in 'Password', with: user.password
+					fill_in 'Confirmation', with: user.password
+			  end
+		  
+			  describe "changes the data" do
+					before { click_button submit }
+		
+					specify { expect(user.reload.name).to eq('New Name') }
+					specify { expect(user.reload.email).to eq('new.name@example.com') }
+			  end
 	
-				specify { expect(response).to redirect_to(user_path(user)) }
-		  end
+			  describe "redirects back to profile page", type: :request do
+					before do
+				    patch user_path(user), user: { name: 'New Name',
+								   email: 'new.name@example.com',
+								   password: user.password,
+								   password_confirmation: user.password }
+					end
+					specify { expect(response).to redirect_to(user_path(user)) }
+			  end
 	
-		  it "produces an update message" do
-				click_button submit
-				should have_alert(:success)
-		  end
+			  it "produces an update message" do
+					click_button submit
+					should have_alert(:success)
+			  end
 
-    	it "does not add a new user to the system" do
-				expect { click_button submit }.not_to change(User, :count)
+	    	it "does not add a new user to the system" do
+					expect { click_button submit }.not_to change(User, :count)
+	    	end
     	end
-    end
+		end
 	end
-	
+		
+		
 	describe "delete users" do
 		let! (:user) { FactoryGirl.create(:user) }
-		before { visit users_path }
-		
+		before do
+		    login user
+		    visit users_path
+		end
+	
 		it { should have_link('delete', href: user_path(user)) }
 		
 		describe "redirects properly", type: :request do
-			before { delete user_path(user) }
-			
+	    before do
+				login user, avoid_capybara: true
+				delete user_path(user)
+	    end
 			specify { expect(response).to redirect_to(users_path) }
 		end
-		
+	
 		it "produces a delete message" do
 			click_link('delete', match: :first)
 			should have_alert(:success)
 		end
-		
+	
 		it "removes a user from the system" do
 			expect do
 				click_link('delete', match: :first)
 			end.to change(User, :count).by(-1)
 		end
 	end
+	
+	
 end
