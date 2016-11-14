@@ -1,5 +1,5 @@
 class UsersController < ApplicationController
-  before_action :ensure_user_logged_in, only: [:edit]
+  before_action :ensure_user_logged_in, only: [:edit, :update, :destroy]
 
   def index
   	@users = User.all
@@ -28,10 +28,6 @@ class UsersController < ApplicationController
   end
   
   def edit
-  	@user = User.find(params[:id])
-  rescue
-    flash[:danger] = "Unable to find user"
-    redirect_to users_path
   end
   
   def update
@@ -64,7 +60,7 @@ class UsersController < ApplicationController
 	    flash[:warning] = "Not logged in as #{@user.name}"
 	    redirect_to login_path
 	  end
-    rescue
+  rescue
 	  flash[:danger] = "Unable to find user"
 	  redirect_to users_path
   end
