@@ -8,18 +8,28 @@ class UsersController < ApplicationController
   end
 
   def new
-    @user = User.new
+    if logged_in?
+      flash[:warning] = "Cannot create new user while logged in"
+      redirect_to root_path
+    else 
+      @user = User.new
+    end
   end
 
   def create
-  	@user = User.new(user_params)
-  	if @user.save
-  		flash[:success] = "Welcome to the site, #{@user.name}"
-  		redirect_to @user
-  	else
-  		flash.now[:danger] = "Unable to create new user"
-  		render 'new'
-  	end
+    if logged_in?
+      flash[:warning] = "Cannot create new user while logged in"
+      redirect_to root_path
+    else 
+      @user = User.new(user_params)
+      if @user.save
+        flash[:success] = "Welcome to the site, #{@user.name}"
+        redirect_to @user
+      else
+        flash.now[:danger] = "Unable to create new user"
+        render 'new'
+      end
+    end
   end
   
   def show
@@ -44,10 +54,15 @@ class UsersController < ApplicationController
   end
   
   def destroy
-  	@user = User.find(params[:id])
-  	@user.destroy
-  	flash[:success] ="#{@user.name} removed from the site"
-    redirect_to users_path
+    @user = User.find(params[:id])
+    if (current_user == @user) && current_user.admin?
+      flash[:danger] = "Admin cannot delete self"
+      redirect_to root_path
+    else
+  	  @user.destroy
+  	  flash[:success] ="#{@user.name} removed from the site"
+      redirect_to users_path
+    end  
   end
   
   private 
