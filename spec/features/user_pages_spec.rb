@@ -190,9 +190,10 @@ describe "User Pages" do
 
   describe "delete users" do
 		let!(:user) { FactoryGirl.create(:user) }
+		let (:admin) { FactoryGirl.create(:admin) }
 	
 		before do
-			login user
+			login admin
 			visit users_path
 		end
 	
@@ -200,7 +201,7 @@ describe "User Pages" do
 
 		describe "redirects properly", type: :request do
 			before do
-				login user, avoid_capybara: true
+				login admin, avoid_capybara: true
 				delete user_path(user)
 		  end
 		  

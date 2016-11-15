@@ -52,7 +52,32 @@ describe 'AuthorizationPages' do
 		      let (:direct_path) { user_path(user) }
 		      let (:direct_http_method) { :delete }
 		    end
+		    
+		    describe "delete action" do
+          it_behaves_like "redirects to root", skip_browser: true do
+            let (:login_user) { user }
+            let (:error_type) { :danger }
+            let (:direct_http_method) { :delete }
+            let (:direct_path) { user_path(user) }
+          end
+		    end
 	    end
 	  end
+  end
+  
+  describe "admin user" do
+    let (:admin) { FactoryGirl.create(:admin) }
+ 
+   	describe "for Users controller" do
+      describe "delete action", type: :request do
+ 		    before do
+ 		      login admin, avoid_capybara: true
+ 		      delete user_path(user)
+ 		      get response.headers['Location']
+        end
+ 
+ 		    specify { expect(response.body).not_to have_alert(:danger) }
+      end
+    end
   end
 end
