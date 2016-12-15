@@ -1,5 +1,5 @@
 class RidesController < ApplicationController
-    def index
+def index
 	order_param = (params[:order] || :Date).to_sym
 	ordering = case order_param
 		   when :Date
@@ -8,5 +8,5 @@ class RidesController < ApplicationController
 		       :service_id
 		   end
 	@rides = Ride.order(ordering)
-    end
+  end
 end
